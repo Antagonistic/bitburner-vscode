@@ -1,7 +1,6 @@
 import { GangOtherInfo, NS } from '@ns'
 import { IEquip, getEquip } from '/gang/equip';
 import { getTasks, IGangTask } from '/gang/task';
-import { shuffleArray } from '/lib/utils';
 
 const names = ["Jim", "Joe", "Violet", "8-ball", "Butcher", "Slick", "Scar", "Fat Tony", "Cain", "Able", "Bones", "Lucky", "Ice", "Knuckles", "Bugsy", "Digger", "Sandman", "Ace", "Twigger", "Rock", "Succubus", "Fear"]
 const basicHackLevel = 80;
@@ -11,12 +10,9 @@ const advHackLevel = 200;
 const advCombatLevel = 250;
 const advCharismaLevel = 150;
 
-//const ASCEND_VALUE = 2
-//const ASCEND_MPL = 10;
 const ASCEND_COOLDOWN = 2*1000*60;
 const MAX_MEMBERS = 12;
 const MAX_RESPECT = 10000000;
-//const MAX_REPUTATION = 2500000;
 
 const TASK_WANTED = "Vigilante Justice";
 const TASK_WAR = "Territory Warfare";
@@ -42,7 +38,6 @@ function basicEquip(ns: NS, gang: string[], equip: IEquip[]): string[] {
             if(eq.cost > cash) break;
             if(ns.gang.purchaseEquipment(g, eq.name))
             {
-                //ns.toast(`Bought gang member ${g} a ${eq.name}`);
                 cash -= eq.cost;
             }
         }
@@ -210,7 +205,6 @@ function basicTask(ns: NS, gang: string[], tasks: IGangTask[], layingLow: boolea
     if(ns.gang.getMemberNames().length < MAX_MEMBERS) respect = Math.max(respect, 1);
     let money = (!layingLow && gang.length > 4) ? Math.ceil(gang.length * 0.3) : 1;
     if(ganginfo.wantedPenalty > 0.9) money = 0;
-    //let warriors = (threat && gang.length > 8) ? Math.ceil(gang.length * 0.4): 1;
     let trainers = gang.length > 10 ? 2 : 0;
 
     let sum = vigilantes+respect+money+trainers;
@@ -270,8 +264,7 @@ function basicTask(ns: NS, gang: string[], tasks: IGangTask[], layingLow: boolea
 
 function recruit(ns: NS): void {
     if(ns.gang.canRecruitMember()) {
-        shuffleArray(names);
-        for(const name of names) {
+        for(const name of _.shuffle(names)) {
             if(!ns.gang.getMemberNames().includes(name)) {
                 if(ns.gang.recruitMember(name)) {
                     ns.toast(`Recruited new gang member ${name}`);
@@ -332,20 +325,32 @@ export async function main(ns : NS) : Promise<void> {
     let clashcounter = 0;   
     let clashcache = ns.gang.getOtherGangInformation();
     while(true) {
+        // Recruit new gang members
         recruit(ns);
-        const clashdata = ns.gang.getOtherGangInformation();
-        if(clashHappened(clashdata, clashcache))
-        {
-            clashcounter = 0;
-            clashcache = clashdata;
-        } else {clashcounter++;}
-
+        
         const ganginfo = ns.gang.getGangInformation();
         const war = ganginfo.territoryClashChance > 0;
 
-        let members = ns.gang.getMemberNames();
-        shuffleArray(members);
+        if(ganginfo.territory < 1)
+        {
+            // Reset loop if territy clash detected
+            const clashdata = ns.gang.getOtherGangInformation();
+            if(clashHappened(clashdata, clashcache))
+            {
+                clashcounter = 0;
+                clashcache = clashdata;
+            } else {clashcounter++;}
+        }
+        else
+        {
+            // Reset loop if you already own all territory
+            if(clashcounter == 19) {clashcounter = 0;}
+        }
 
+        // Get and shuffle member names
+        let members = _.shuffle(ns.gang.getMemberNames());
+
+        // First tick of new loop, do assignments
         if(clashcounter == 0) {
 
             if(!layingLow && ganginfo.wantedPenalty < 0.92)
@@ -369,6 +374,7 @@ export async function main(ns : NS) : Promise<void> {
             if(args.verbose) ns.tprint(`members adv trained ${members.length}`)
             members = basicTask(ns, members, tasks, layingLow, war, args.verbose);
         }
+        // Last tick of the loop, do territory wars
         if(clashcounter == 19)
         {
             if(war) {
@@ -384,6 +390,7 @@ export async function main(ns : NS) : Promise<void> {
                 if(ganginfo.territory < 1 && !otherGangThreat(ns)) ns.gang.setTerritoryWarfare(true);
             }
 
+            // WAR
             members = basicWar(ns, members);
         }
         await ns.sleep(1000);
