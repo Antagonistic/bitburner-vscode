@@ -38,7 +38,7 @@ export async function main(ns : NS) : Promise<void> {
         }
         else
         {
-            ns.tprint(`Need more negative karma to create gang! ${ns.heart.break()}/${GANG_KARMA}`);
+            ns.tprint(`Need more negative karma to create gang! ${ns.heart.break().toFixed(0)}/${GANG_KARMA}`);
         }
     }
 }

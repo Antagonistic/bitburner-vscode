@@ -4,8 +4,6 @@ import { list_open_servers, recursiveScan } from '/lib/scan';
 import { TextTransforms } from '/lib/TextTransforms';
 import { FIELD_WORK, HACKING_WORK, SECURITY_WORK } from '/start/lib/skills';
 
-//const factionList = ["CyberSec", "NiteSec"]
-const FACTION_BACKDOOR_SERVERS = ["CSEC", "avmnite-02h", "I.I.I.I", "run4theh111z"]
 const GANG_FACTION = "Slum Snakes"
 
 export const FactionNames =  [
@@ -347,8 +345,11 @@ export async function doJoinFactionwork(ns: NS, factions: AugFaction[], focus: b
                 case "crime":
                     break;
                 case "murder":
-                    ns.singularity.commitCrime("Homicide", focus);
-                    return true;
+                    if(ns.getPlayer().numPeopleKilled < 50)
+                    {
+                        ns.singularity.commitCrime("Homicide", focus);
+                        return true;
+                    }   
                     break;
             }
         }

@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { doJoinFactionwork, doRepWork, workFactions, getAugFactions, getAvailableAugs } from '/start/faction'
+import { workFactions, getAugFactions, getAvailableAugs } from '/start/faction'
 import * as Skills from '/start/lib/skills'
 
 let taskFocus = false;
@@ -180,7 +180,7 @@ function karmaGrind(ns: NS)
         {
             if(!basicCombat(ns, true))
             {
-                ns.singularity.commitCrime(Skills.BASIC_KARMA_CRIME, taskFocus);
+                ns.singularity.commitCrime(Skills.BASIC_CRIME, taskFocus);
                 return true;
             }
         }

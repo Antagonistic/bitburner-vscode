@@ -37,6 +37,11 @@ export async function main(ns : NS) : Promise<void> {
             exec_wrap(ns, "start/home.slim.js")
     }
 
+    // Sleeves
+    {
+        exec_wrap(ns, "/sleeve/sleeve.js");
+    }
+
     // Train skills
     {
         const skillScriptRam = ns.getScriptRam("/start/skills.js");

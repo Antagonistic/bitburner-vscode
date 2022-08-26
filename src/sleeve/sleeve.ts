@@ -3,6 +3,7 @@ import * as Skills from '/start/lib/skills'
 
 function sleeveCrime(ns: NS, i: number): boolean
 {
+    if(ns.sleeve.getTask(i)?.type == "CRIME") return true;   
     return ns.sleeve.setToCommitCrime(i, Skills.BASIC_CRIME);
 }
 
@@ -15,7 +16,7 @@ export async function main(ns : NS) : Promise<void> {
         let hasJob = false;
         if(stats.sync < 100)
             hasJob = ns.sleeve.setToSynchronize(i);
-        if(!hasJob && stats.shock > 25)
+        if(!hasJob && stats.shock > 0)
             hasJob = ns.sleeve.setToShockRecovery(i);
         if(!hasJob)
             hasJob = sleeveCrime(ns, i);

@@ -97,9 +97,9 @@ export async function queueExecDelay(ns: NS, queue: ExecDelay[], verbose = false
         const now = performance.now()
         if(verbose && Math.abs(delayTot - now + startTime) > 10) ns.tprint(`Time adjust ${delayTot.toFixed(0)} to ${(now - startTime).toFixed(0)}`);
         delayTot = now - startTime
-        if((q.delay-delayTot)>0)
+        const sleepdelay = q.delay - delayTot;
+        if(sleepdelay>3)
         {
-            const sleepdelay = q.delay - delayTot;
             //if(verbose) ns.tprint(`sleep ${sleepdelay.toFixed(0)} to reach ${q.delay.toFixed(0)}`);
             await ns.sleep(sleepdelay-3);
             delayTot+=sleepdelay;

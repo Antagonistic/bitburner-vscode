@@ -19,7 +19,11 @@ export interface IScore {
 }
 
 export function print_score(ns: NS, score: IScore): void {
-  ns.tprint(`
+  ns.tprint(print_score_string(ns, score));
+}
+
+export function print_score_string(ns: NS, score: IScore): void {
+  return `
   ${score.name}    :
       hackamount    : ${score.hackamount.toFixed(2)}/${score.maxMoney} (${(score.hackPercent*100).toFixed(2)}%)
       hackTime      : ${ns.tFormat(score.hacktime)}   ${((score.hacktime < 2000) ? score.hacktime.toFixed(2)+" ms" : "")}
@@ -33,7 +37,7 @@ export function print_score(ns: NS, score: IScore): void {
       hackThreads   : ${score.hackThreads}
       growThreads   : ${score.growThreads}
       weakThreads   : ${score.weakThreads}
-`);
+`
 }
 
 export function score_servers(ns: NS, servers: string[], cores = 1): IScore[] {
@@ -53,7 +57,7 @@ export function score_servers(ns: NS, servers: string[], cores = 1): IScore[] {
 }
 
 export function score_server(ns: NS, server: string, cores = 1): IScore | null {
-  const hackPercent = 0.25;
+  const hackPercent = 0.05;
   if (ns.fileExists("Formulas.exe", "home")) {
     const maxMoney = ns.getServerMaxMoney(server);
     if (maxMoney <= 0) {

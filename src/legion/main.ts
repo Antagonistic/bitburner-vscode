@@ -9,8 +9,10 @@ export async function main(ns : NS) : Promise<void> {
     const argsc = ns.flags([
         ["verbose", false],
         ["test", false],
+        ["tail", false],
         ["top",false]
     ]);
+    if(argsc.tail) ns.tail();
     let scores: IScore[];
     if(argsc['_'][0]) {
         const target = argsc['_'][0];
@@ -41,6 +43,9 @@ export async function main(ns : NS) : Promise<void> {
                 Legion.exec_Spawn(ns, host, target.name, true);
             }
         }
-    }
-    
+    }   
+}
+
+export function autocomplete(data: AutocompleteData): string[] {
+    return [...data.servers, "--test", "--tail", "--top"]; // This script autocompletes the list of servers and flags.
 }

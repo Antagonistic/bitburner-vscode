@@ -72,6 +72,16 @@ function CalculateAscendTreshold(ns: NS, member: string, isHacking: boolean): nu
     return 1.0591;
 }
 
+function getNextMemberRespect(ns: NS)
+{
+    if(ns.gang.getMemberNames().length == MAX_MEMBERS) return -1;
+    const numFreeMembers = 3;
+    if (this.members.length < numFreeMembers) return 0;
+
+    const i = this.members.length - (numFreeMembers - 1);
+    return Math.pow(5, i);
+}
+
 function basicAscend(ns: NS, gang: string[]): string[] {
     const available: string[] = [];
     const isHacking = ns.gang.getGangInformation().isHacking;
@@ -80,19 +90,19 @@ function basicAscend(ns: NS, gang: string[]): string[] {
         const asc = ns.gang.getAscensionResult(g);
         if(asc){
             //ns.tprint(`${g} ${ns.tFormat(performance.now()-AscendTimestamp)} ago ${CalculateAscendTreshold(ns, g, isHacking)}`);
-            if(ns.gang.getMemberNames().length == MAX_MEMBERS || (performance.now()-AscendTimestamp > ASCEND_COOLDOWN))
+            if(ns.gang.getMemberNames().length == MAX_MEMBERS || getNextMemberRespect(ns)*0.5>ns.gang.getGangInformation().respect)
             {
-                //const mpl = asc.agi * asc.def * asc.dex * asc.str;
-                //if(asc.agi>ASCEND_VALUE && asc.def>ASCEND_VALUE && asc.dex > ASCEND_VALUE && asc.str > ASCEND_VALUE && asc.hack > ASCEND_VALUE)
-                //if(mpl > ASCEND_MPL)
-                if( ((!isHacking && asc.str > CalculateAscendTreshold(ns, g, isHacking))
-                    || (isHacking && asc.hack > CalculateAscendTreshold(ns, g, isHacking))))
+                if(ns.gang.getMemberNames().length == MAX_MEMBERS || (performance.now()-AscendTimestamp > ASCEND_COOLDOWN))
                 {
-                    ns.toast(`Gang member ${g} ascended!`);
-                    //ns.tprint(`Gang member ${g} ascended!`);
-                    ns.gang.ascendMember(g);
-                    AscendTimestamp = performance.now();
-                    continue;
+                    if( ((!isHacking && asc.str > CalculateAscendTreshold(ns, g, isHacking))
+                        || (isHacking && asc.hack > CalculateAscendTreshold(ns, g, isHacking))))
+                    {
+                        ns.toast(`Gang member ${g} ascended!`);
+                        //ns.tprint(`Gang member ${g} ascended!`);
+                        ns.gang.ascendMember(g);
+                        AscendTimestamp = performance.now();
+                        continue;
+                    }
                 }
             }
         }
